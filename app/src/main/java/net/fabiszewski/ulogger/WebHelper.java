@@ -11,11 +11,14 @@ package net.fabiszewski.ulogger;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
@@ -385,6 +388,17 @@ class WebHelper {
     void postPosition(Map<String, String> params) throws IOException, WebAuthException {
         if (Logger.DEBUG) { Log.d(TAG, "[postPosition]"); }
         params.put(PARAM_ACTION, ACTION_ADDPOS);
+
+        IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, iFilter);
+        int status           = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging   = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
+        int level            = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale            = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        float batteryPct     = level * 100 / (float)scale;
+        params.put("battlevel", String.valueOf(batteryPct));
+        params.put("charging", String.valueOf(isCharging));
+
         String response;
         Uri uri = null;
         if (params.containsKey(PARAM_IMAGE)) {
