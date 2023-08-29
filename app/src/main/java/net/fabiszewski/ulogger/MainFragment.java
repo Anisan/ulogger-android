@@ -117,6 +117,9 @@ public class MainFragment extends Fragment implements PermissionHelper.Permissio
         buttonNewTrack.setOnClickListener(this::newTrack);
         buttonShare.setOnClickListener(this::shareURL);
         layoutSummary.setOnClickListener(this::trackSummary);
+
+        this.startLogger(this.getContext());
+
         return layout;
     }
 
